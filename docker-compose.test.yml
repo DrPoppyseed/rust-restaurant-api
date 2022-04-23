@@ -1,0 +1,46 @@
+# For testing, we don't need mongo-express, and we want to run the tests in a clean
+# environment, so we don't use any of the local files as volumes
+version: "3"
+
+services:
+  mongodb:
+    container_name: mongodb-test
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      # resources needed for mongodb
+      - ./db:/home/mongodb
+      - ./scripts/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+    restart: always
+    environment:
+      MONGO_INITDB_USERNAME: "$MONGO_INITDB_USERNAME"
+      MONGO_INITDB_PASSWORD: "$MONGO_INITDB_PASSWORD"
+      MONGO_REPLICA_HOST: mongo
+      MONGO_REPLICA_PORT: 27017
+    networks:
+      - test
+
+  api:
+    container_name: api-test
+    build:
+      context: .
+      target: dev # docker-compose is only used for local development
+      dockerfile: Dockerfile
+    command: /bin/sh -c "cargo test"
+    stdin_open: true
+    tty: true
+    ports:
+      - "8088:8088"
+    depends_on:
+      - mongodb
+    environment:
+      - PORT=8088
+      - MONGO_URI=mongodb://mongodb:27017
+    networks:
+      - test
+
+networks:
+  test:
+    driver: bridge
+
