@@ -1,4 +1,8 @@
+# build files
 target
-scripts
 
-Dockerfile
+# env files
+.env
+
+# IDE related files
+.idea

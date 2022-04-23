@@ -1,1 +1,0 @@
-db.createUser({ user, pwd: password, roles: [{ role: "readWrite", db: "restaurant" }] });

@@ -1,2 +1,11 @@
+# build files
 target
+
+# env files
 .env
+
+# logs
+db/.mongodb
+
+# IDE related files
+.idea
