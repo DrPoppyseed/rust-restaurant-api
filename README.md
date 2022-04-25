@@ -30,6 +30,9 @@ To run tests on the API, run the following command.
 $ make test
 ```
 
+You could also just create a mongodb database from Mongodb Atlas and use the Mongo URI connection string given by the
+service.
+
 ## Learnings
 
 To speed up the `Dockerfile` build time, I found an interesting gist that went through explaining how one could
