@@ -52,9 +52,9 @@ fn item_creator(
 
   Item {
     item_id: nanoid!(),
-    table_id: table_id,
-    name: name,
-    time: time,
+    table_id,
+    name,
+    time,
     created_at: Utc::now().to_string(),
   }
 }

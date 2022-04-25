@@ -1,8 +1,6 @@
-use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
 use crate::model::item::Item;
-use crate::utils::serialize_object_id;
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Table {

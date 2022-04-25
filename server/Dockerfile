@@ -8,20 +8,20 @@
 FROM rust:1.60.0 AS dev
 
 WORKDIR /app
-RUN cargo install cargo-watch
-RUN cargo install cargo-udeps && cargo +nightly udeps
-COPY . .
+RUN rustup toolchain install nightly-aarch64-unknown-linux-gnu
+RUN cargo install cargo-watch cargo-udeps && cargo +nightly udeps
+COPY ./server .
 
 # Build
 FROM rust:1.60.0-slim-buster AS build
 
 # capture dependencies
-COPY Cargo.toml Cargo.lock /app/
+COPY server/Cargo.toml server/Cargo.lock /app/
 
 # create app using our own Cargo.toml
 RUN rm -rf /app
 RUN cargo new /app
-COPY Cargo.toml /app/
+COPY server/Cargo.toml /app/
 
 # cache deps
 WORKDIR /app

@@ -9,6 +9,7 @@ use actix_web::{
   App, HttpServer,
 };
 
+use crate::api::tables::get_tables;
 use api::{
   items::{add_item, delete_item, get_item},
   meta::{echo, health_check, not_found},
@@ -19,7 +20,7 @@ use repository::db::MongoDBRepository;
 mod api;
 mod model;
 mod repository;
-mod utils;
+mod test_utils;
 
 #[actix_web::main]
 async fn main() -> Result<()> {
@@ -46,6 +47,7 @@ async fn main() -> Result<()> {
       .app_data(mongodb_data.clone())
       .route("/", get().to(health_check))
       .route("/", post().to(echo))
+      .route("/tables", get().to(get_tables))
       .route("/tables", post().to(add_table))
       .route("/tables/{table_id}", get().to(get_table))
       .route("/tables/{table_id}", delete().to(delete_table))

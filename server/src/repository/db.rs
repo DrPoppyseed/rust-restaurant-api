@@ -7,6 +7,8 @@ use mongodb::{
   Client, Collection, Cursor,
 };
 
+use futures::TryStreamExt;
+
 use crate::model::{item::Item, table::Table};
 
 #[derive(Debug)]
@@ -43,6 +45,15 @@ impl MongoDBRepository {
   ) -> StdResult<Option<Table>, Error> {
     let filter = doc! { "table_id": table_id };
     self.get_table_collection().find_one(filter, None).await
+  }
+
+  pub async fn get_tables(&self) -> Vec<Table> {
+    let cursor = match self.get_table_collection().find(None, None).await {
+      Ok(cursor) => cursor,
+      Err(_) => return vec![],
+    };
+
+    cursor.try_collect().await.unwrap_or_else(|_| vec![])
   }
 
   pub async fn add_table(

@@ -2,5 +2,6 @@ pub mod items;
 pub mod meta;
 pub mod tables;
 
-#[cfg(test)]
-mod test;
+mod items_test;
+mod meta_test;
+mod tables_test;

@@ -6,7 +6,7 @@ The goal in writing this API was to use as few libraries as possible, resulting 
 - `serde, serde_json` ... for serializing and deserializing json
 - `actix-web` ... for making the http server
 - `mongodb` ... mongodb driver for rust
-- `env_logger` ... logger
+- `chrono, nanoid, env_logger` ... QOL improvement libraries that handle time, uuid gen, and logging.
 
 ## Getting Started
 

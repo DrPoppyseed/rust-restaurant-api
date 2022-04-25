@@ -4,12 +4,9 @@ use actix_web::{
 };
 use chrono::Utc;
 use nanoid::nanoid;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
-use crate::model::{
-  item::Item,
-  table::{Table, TableFactory, TableIdentifier},
-};
+use crate::model::table::{Table, TableFactory, TableIdentifier};
 use crate::repository::db::MongoDBRepository;
 
 pub async fn get_table(
@@ -30,6 +27,13 @@ pub async fn get_table(
         .body("Error: `get_table` operation failed.")
     })
     .unwrap()
+}
+
+pub async fn get_tables(
+  mongodb_repository: Data<MongoDBRepository>,
+) -> HttpResponse {
+  let res = mongodb_repository.get_tables().await;
+  HttpResponse::Ok().json(res)
 }
 
 fn table_creator(table_factory: TableFactory) -> Table {
