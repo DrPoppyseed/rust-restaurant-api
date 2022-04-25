@@ -12,25 +12,35 @@ use crate::model::{
 };
 use crate::repository::db::MongoDBRepository;
 
+// Handle item not found responses
+fn item_not_found(table_id: &str, item_id: &str) -> HttpResponse {
+  HttpResponse::NotFound().body(format!(
+    "Error: Item [item_id: {}, table_id:{}] not found",
+    &item_id, &table_id
+  ))
+}
+
 pub async fn get_item(
   item_identifier: Path<ItemIdentifier>,
   mongodb_repository: Data<MongoDBRepository>,
 ) -> HttpResponse {
-  // extract params
   let ItemIdentifier { table_id, item_id } = item_identifier.into_inner();
 
-  let res = mongodb_repository.get_table(&table_id).await;
-
-  return match res {
-    Ok(data) => match data {
-      Some(data) => HttpResponse::Ok().json(data.items),
-      None => HttpResponse::NotFound().body(format!(
-        "Error: Item [item_id: {}, table_id:{}] not found",
-        &item_id, &table_id
-      )),
-    },
-    Err(_) => HttpResponse::InternalServerError().body("get_item failed"),
-  };
+  mongodb_repository
+    .get_table(&table_id)
+    .await
+    .map(|data| match data {
+      Some(table) => {
+        let item = table.items.iter().find(|item| item.item_id.eq(&item_id));
+        match item {
+          Some(item) => HttpResponse::Ok().json(item),
+          None => item_not_found(&table_id, &item_id),
+        }
+      }
+      None => item_not_found(&table_id, &item_id),
+    })
+    .map_err(|_| HttpResponse::InternalServerError().body("get_item failed"))
+    .unwrap()
 }
 
 fn item_creator(
@@ -71,13 +81,10 @@ pub async fn delete_item(
 ) -> HttpResponse {
   let ItemIdentifier { table_id, item_id } = item_identifier.into_inner();
 
-  let res = mongodb_repository.delete_item(&table_id, &item_id).await;
-
-  match res {
-    Ok(_) => HttpResponse::Ok().finish(),
-    Err(err) => {
-      eprintln!("{}", err);
-      HttpResponse::InternalServerError().body("delete_item failed")
-    }
-  }
+  mongodb_repository
+    .delete_item(&table_id, &item_id)
+    .await
+    .map(|_| HttpResponse::Ok().finish())
+    .map_err(|_| HttpResponse::InternalServerError().body("delete_item failed"))
+    .unwrap()
 }
