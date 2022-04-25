@@ -4,25 +4,25 @@ version: "3"
 
 services:
   mongodb:
-    container_name: mongodb-test
+    container_name: restaurant-mongodb-test
     image: mongo
     ports:
-      - "27017:27017"
+      - "27018:27018"
     volumes:
       # resources needed for mongodb
-      - ./db:/home/mongodb
+      - ./db/test:/home/mongodb
       - ./scripts/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
     restart: always
     environment:
       MONGO_INITDB_USERNAME: "$MONGO_INITDB_USERNAME"
       MONGO_INITDB_PASSWORD: "$MONGO_INITDB_PASSWORD"
-      MONGO_REPLICA_HOST: mongo
-      MONGO_REPLICA_PORT: 27017
+      MONGO_REPLICA_HOST: mongodb-test
+      MONGO_REPLICA_PORT: 27018
     networks:
       - test
 
   api:
-    container_name: api-test
+    container_name: restaurant-api-test
     build:
       context: .
       target: dev # docker-compose is only used for local development
@@ -36,7 +36,7 @@ services:
       - mongodb
     environment:
       - PORT=8088
-      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_URI=mongodb://restaurant-mongodb-test:27018/?authSource=admin
     networks:
       - test
 

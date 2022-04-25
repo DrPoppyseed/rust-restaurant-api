@@ -1,5 +1,5 @@
 # build files
-target
+server/target
 
 # env files
 .env

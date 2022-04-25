@@ -2,31 +2,33 @@ version: "3"
 
 services:
   mongodb:
+    container_name: restaurant-mongodb-dev
     image: mongo
     ports:
       - "27017:27017"
     volumes:
       # resources needed for mongodb
-      - ./db:/home/mongodb
+      - ./db/dev:/home/mongodb
       - ./scripts/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
     restart: always
     environment:
+      MONGO_INITDB_ROOT_USERNAME: "$MONGO_INITDB_ROOT_USERNAME"
+      MONGO_INITDB_ROOT_PASSWORD: "$MONGO_INITDB_ROOT_PASSWORD"
       MONGO_INITDB_USERNAME: "$MONGO_INITDB_USERNAME"
       MONGO_INITDB_PASSWORD: "$MONGO_INITDB_PASSWORD"
-      MONGO_REPLICA_HOST: mongo
+      MONGO_REPLICA_HOST: mongodb-dev
       MONGO_REPLICA_PORT: 27017
     networks:
       - default
 
   api:
+    container_name: restaurant-api-dev
     build:
-      context: .
-      target: dev # docker-compose is only used for local development
-      dockerfile: Dockerfile
+      context: ./server
+      target: dev
     command: /bin/sh -c "cargo watch -x run"
     volumes:
-      # use files from local environment for development
-      - .:/app
+      - ./server:/app
     stdin_open: true
     tty: true
     ports:
@@ -34,12 +36,13 @@ services:
     depends_on:
       - mongodb
     environment:
-      - PORT=8080
-      - MONGO_URI=mongodb://mongodb:27017
+      - ADDR=0.0.0.0:8080
+      - MONGO_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@restaurant-mongodb-dev:27017/
     networks:
       - default
 
   mongo-express:
+    container_name: restaurant-mongo-express-dev
     image: mongo-express
     restart: always
     ports:
@@ -47,7 +50,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: "$MONGO_INITDB_ROOT_USERNAME"
       ME_CONFIG_MONGODB_ADMINPASSWORD: "$MONGO_INITDB_ROOT_PASSWORD"
-      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_SERVER: restaurant-mongodb-dev
     depends_on:
       - mongodb
     networks:

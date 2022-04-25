@@ -9,6 +9,7 @@ FROM rust:1.60.0 AS dev
 
 WORKDIR /app
 RUN cargo install cargo-watch
+RUN cargo install cargo-udeps && cargo +nightly udeps
 COPY . .
 
 # Build
@@ -27,7 +28,7 @@ WORKDIR /app
 RUN --mount=type=cache,target=/usr/local/cargo/registry cargo build --release
 
 # copy sources
-COPY . /app
+COPY .. /app
 
 # mount cache
 RUN --mount=type=cache,target=/usr/local/cargo/registry <<EOF

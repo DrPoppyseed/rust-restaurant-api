@@ -1,11 +1,13 @@
 # build files
-target
+server/target
+server/config.toml
 
 # env files
 .env
 
 # logs
-db/.mongodb
+db/*/.mongodb
 
 # IDE related files
 .idea
+
