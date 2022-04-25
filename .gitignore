@@ -1,6 +1,6 @@
 # build files
 server/target
-server/config.toml
+client/target
 
 # env files
 .env
